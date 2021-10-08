@@ -21,10 +21,14 @@ class Sistema:
         self.planificador = FCFS()
 
         self.quantum = 0
+        self.correr_sim = False
 
         self.init_ventana_principal()
     
     def ciclo(self):
+        if not self.correr_sim:
+            return
+
         # agregar procesos
         for pr in self.lista_procesos:
             if(pr.t_llegada==self.quantum):
@@ -43,6 +47,13 @@ class Sistema:
         
         self.quantum += 1
         self.ventana_principal.after(1000, self.ciclo)
+    
+    def iniciar_sim(self):
+        self.correr_sim = True
+        self.ciclo()
+    
+    def detener_sim(self):
+        self.correr_sim = False
 
     def agregar_proceso_lista(self):
         if(self.dr_nv_proc.get().isdigit()):
@@ -81,7 +92,8 @@ class Sistema:
         # panel de control de simulacion
         panel_procesos = ttk.LabelFrame(self.ventana_principal, text="Control de simulación")
         panel_procesos.grid(row=0, column=1, sticky="e")
-        ttk.Label(panel_procesos, text="Controles de simulacion").pack()
+        ttk.Button(panel_procesos, text="Iniciar", command=self.iniciar_sim).grid(row=0, column=0, sticky='we')
+        ttk.Button(panel_procesos, text="Detener", command=self.detener_sim).grid(row=0, column=1, sticky='we')
 
         # panel de lista de procesos
         panel_procesos = ttk.LabelFrame(self.ventana_principal, text="Procesos")
@@ -93,7 +105,6 @@ class Sistema:
         self.display = Display(panel_simulacion)
         panel_simulacion.grid(row=1, column=0, columnspan=3)
 
-        self.ciclo()
         self.ventana_principal.mainloop()
 
 sistema = Sistema()
