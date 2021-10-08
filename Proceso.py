@@ -8,14 +8,15 @@ class Proceso():
         self.t_restante = t_ejecucion
         self.t_bloqueo = 0
 
-    def atender(self):
-        if self.estado=="Ejecutando" and self.bloqueos[0][0] == self.t_ejecucion-self.t_restante:
+    def cambiar_estado(self):
+        if self.estado=="Ejecutando" and len(self.bloqueos)>0 and self.bloqueos[-1][0] == self.t_ejecucion-self.t_restante:
             self.bloquear()
         if self.estado=="Bloqueado" and self.t_bloqueo<1:
             self.esperar()
         if self.t_restante<1:
             self.terminar()
 
+    def atender(self):
         if self.estado=="Ejecutando" and self.t_restante>0:
             self.t_restante -= 1
         if self.estado=="Bloqueado" and self.t_bloqueo>0:
