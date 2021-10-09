@@ -1,14 +1,18 @@
 from tkinter import Canvas
 
 class Display:
-    def __init__(self, master, width=700, height=200):
+    def __init__(self, master, tam_cr=20, y_crr=20, x_crr=35, width=0, height=200):
+        self.tam_cr = tam_cr
+        self.y_crr = y_crr
+        self.x_crr = x_crr
+
         self.width = width
+        if self.width == 0:
+            self.width = self.x_crr+(self.tam_cr*50)
         self.height = height
         self.canvas = Canvas(master, bg='black', width=self.width, height=self.height)
         self.canvas.pack()
-        self.tam_cr = 15
-        self.y_crr = 20
-        self.x_crr = 35
+
         self.pos = self.x_crr
 
         self.canvas.create_line(self.x_crr, self.y_crr-1, self.width-self.tam_cr, self.y_crr-1, fill='white')   
