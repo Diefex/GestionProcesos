@@ -22,10 +22,13 @@ class Proceso():
         if self.estado=="Bloqueado" and self.t_bloqueo>0:
             self.t_bloqueo -= 1
     
-    def bloquear(self):
-        if self.estado!="Terminado":
+    def bloquear(self, t_bloqueo=0):
+        if self.estado=="Ejecutando":
             try:
-                self.t_bloqueo = self.bloqueos.pop()[1]
+                if t_bloqueo!=0:
+                    self.t_bloqueo = t_bloqueo
+                else:
+                    self.t_bloqueo = self.bloqueos.pop()[1]
                 self.estado = "Bloqueado"
             except:
                 print("El proceso no se puede suspender")
@@ -39,5 +42,4 @@ class Proceso():
             self.estado = "Ejecutando"
 
     def terminar(self):
-        if self.t_restante<1:
             self.estado = "Terminado"

@@ -75,14 +75,22 @@ class Sistema:
         lb = ttk.Label(pnl, text='P'+str(i), background="black", foreground='white')
         lb.grid(row=0, column=0)
         self.lista_lbl.append(lb)
-        ttk.Button(pnl, text='||', width=3, command= lambda: self.bloquear_proceso(i)).grid(row=0,column=1)
-        ttk.Button(pnl, text='■', width=3).grid(row=0,column=2)
+        ttk.Button(pnl, text='||', width=3, command= lambda: self.bloquear_proceso(i, 3)).grid(row=0,column=1)
+        ttk.Button(pnl, text='■', width=3, command= lambda: self.terminar_proceso(i)).grid(row=0,column=2)
         pnl.grid(row=i%2, column=int(i/2))
 
     def agr_nv_bloq(self):
         if (self.in_nv_bloq.get().isdigit() and self.dr_nv_bloq.get().isdigit()):
             self.nv_bloq.append([int(self.in_nv_bloq.get()), int(self.dr_nv_bloq.get())])
             self.lb_nv_bloq.set(self.nv_bloq)
+       
+    def bloquear_proceso(self, i, t):
+        if i<len(self.procesos):
+            self.procesos[i].bloquear(t_bloqueo=t)
+
+    def terminar_proceso(self, i):
+        if i<len(self.procesos):
+            self.procesos[i].terminar()
 
     def lista_predeterminada(self):
         self.lista_procesos.append(Proceso(0, 6, [[3,2]]))
@@ -116,8 +124,8 @@ class Sistema:
         ttk.Entry(self.panel_agregar, textvariable=self.dr_nv_bloq, width=3).grid(row=1, column=2)
         ttk.Label(self.panel_agregar, textvariable=self.lb_nv_bloq).grid(row=1, column=3)
         ttk.Button(self.panel_agregar, text="Agregar Bloqueo", command=self.agr_nv_bloq).grid(row=2, column=0)
-        ttk.Label(self.panel_agregar, text="ini").grid(row=2, column=1)
-        ttk.Label(self.panel_agregar, text="dur").grid(row=2, column=2)
+        ttk.Label(self.panel_agregar, text="ini").grid(row=2, column=1, sticky='n')
+        ttk.Label(self.panel_agregar, text="dur").grid(row=2, column=2, sticky='n')
         ttk.Button(self.panel_agregar, text="Agregar Proceso", command=self.agregar_proceso).grid(row=3, column=0, columnspan=3, sticky='we')
 
         # panel de control de simulacion
