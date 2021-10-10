@@ -8,16 +8,16 @@ from Planificador import FCFS
 class Sistema:
     def __init__(self):
         self.procesos = []
-
         self.lista_procesos = []
 
-        self.display = None
         self.planificador = FCFS()
 
         self.quantum = 0
         self.correr_sim = False
 
+        self.ventana_principal = tk.Tk()
         self.init_ventana_principal()
+        self.ventana_principal.mainloop()
     
     def ciclo(self):
         if not self.correr_sim:
@@ -57,6 +57,15 @@ class Sistema:
     
     def detener_sim(self):
         self.correr_sim = False
+    
+    def reiniciar_sim(self):
+        self.correr_sim = False
+        self.procesos = []
+        self.lista_procesos = []
+        self.quantum = 0
+        for item in self.panel_procesos.winfo_children():
+            item.destroy()
+        self.init_ventana_principal()
 
     def agregar_proceso(self):
         if(self.dr_nv_proc.get().isdigit()):
@@ -71,7 +80,7 @@ class Sistema:
 
     def agregar_proceso_lista(self):
         i = len(self.lista_procesos)-1
-        pnl = ttk.LabelFrame(self.panel_procesos, text="Proceso"+str(i))
+        pnl = ttk.LabelFrame(self.panel_procesos, text="Proceso "+str(i))
         lb = ttk.Label(pnl, text='P'+str(i), background="black", foreground='white')
         lb.grid(row=0, column=0)
         self.lista_lbl.append(lb)
@@ -107,7 +116,6 @@ class Sistema:
         self.agregar_proceso_lista()
 
     def init_ventana_principal(self):
-        self.ventana_principal = tk.Tk()
 
         self.dr_nv_proc = tk.StringVar()
         self.in_nv_bloq = tk.StringVar()
@@ -134,6 +142,7 @@ class Sistema:
         ttk.Button(self.panel_ctrl_sim, text="Iniciar", command=self.iniciar_sim).grid(row=0, column=0, sticky='we')
         ttk.Button(self.panel_ctrl_sim, text="Detener", command=self.detener_sim).grid(row=1, column=0, sticky='we')
         ttk.Button(self.panel_ctrl_sim, text="Predet.", command=self.lista_predeterminada).grid(row=2, column=0, sticky='we')
+        ttk.Button(self.panel_ctrl_sim, text="Reiniciar", command=self.reiniciar_sim).grid(row=3, column=0, sticky='we')
 
         self.lista_lbl = []
         # panel de lista de procesos
@@ -145,6 +154,5 @@ class Sistema:
         self.display = Display(self.panel_simulacion)
         self.panel_simulacion.grid(row=1, column=0, columnspan=3)
 
-        self.ventana_principal.mainloop()
 
 sistema = Sistema()

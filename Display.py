@@ -11,7 +11,7 @@ class Display:
             self.width = self.x_crr+(self.tam_cr*50)
         self.height = height
         self.canvas = Canvas(master, bg='black', width=self.width, height=self.height)
-        self.canvas.pack()
+        self.canvas.grid(row=0, column=0)
 
         self.pos = self.x_crr
 
