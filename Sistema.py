@@ -30,7 +30,17 @@ class Sistema:
         for i in range(len(self.procesos)):
             self.procesos[i].cambiar_estado()
         # planificar
-        self.procesos = SRTF(self.procesos)
+        plan = self.sel_plan.get()
+        if plan=="FCFS":
+            self.procesos = FCFS(self.procesos)
+        elif plan=="SJF":
+            self.procesos = SJF(self.procesos)
+        elif plan=="SRTF":
+            self.procesos = SRTF(self.procesos)
+        elif plan=="RR":
+            self.procesos = RR(self.procesos)
+        elif plan=="DP":
+            self.procesos = Derecho_Preferente(self.procesos)
         # atender procesos
         for i in range(len(self.procesos)):
             self.procesos[i].atender()
@@ -141,6 +151,9 @@ class Sistema:
         ttk.Button(self.panel_ctrl_sim, text="Detener", command=self.detener_sim).grid(row=1, column=0, sticky='we')
         ttk.Button(self.panel_ctrl_sim, text="Predet.", command=self.lista_predeterminada).grid(row=2, column=0, sticky='we')
         ttk.Button(self.panel_ctrl_sim, text="Reiniciar", command=self.reiniciar_sim).grid(row=3, column=0, sticky='we')
+        self.sel_plan = ttk.Combobox(self.panel_ctrl_sim, state="readonly", values=["FCFS", "SJF", "SRTF", "RR", "DP"])
+        self.sel_plan.grid(row=4, column=0, sticky='we')
+        self.sel_plan.set(self.sel_plan['values'][0])
 
         self.lista_lbl = []
         # panel de lista de procesos
