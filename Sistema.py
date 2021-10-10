@@ -3,14 +3,12 @@ from tkinter import ttk
 
 from Display import Display
 from Proceso import Proceso
-from Planificador import FCFS
+from Planificador import *
 
 class Sistema:
     def __init__(self):
         self.procesos = []
         self.lista_procesos = []
-
-        self.planificador = FCFS()
 
         self.quantum = 0
         self.correr_sim = False
@@ -32,7 +30,7 @@ class Sistema:
         for i in range(len(self.procesos)):
             self.procesos[i].cambiar_estado()
         # planificar
-        self.procesos = self.planificador.planificar(self.procesos)
+        self.procesos = SRTF(self.procesos)
         # atender procesos
         for i in range(len(self.procesos)):
             self.procesos[i].atender()

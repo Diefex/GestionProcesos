@@ -1,42 +1,49 @@
-class Planificador:
-    def __init__(self):
-        pass
+def get_llegada(pr):
+    return pr.t_llegada
 
-    def planificar(self, procesos):
-        # algoritmo de planificacion correspondiente
-        return procesos
+def FCFS(procesos):
+    if(len([p for p in procesos if p.estado=="Ejecutando"])==0): # si no hay ningun proceso en ejecucion
+        pr = procesos.copy()
+        pr.sort(key=get_llegada)
+        for i in range(len(pr)):
+            if pr[i].estado == "Espera":
+                pr[i].ejecutar()
+                break
 
-class FCFS(Planificador):
-    def __init__(self):
-        super().__init__()
-    
-    def get_llegada(self, pr):
-        return pr.t_llegada
-
-    def planificar(self, procesos):
-        if(len([p for p in procesos if p.estado=="Ejecutando"])==0):
-            procesos.sort(key=self.get_llegada)
-            for i in range(len(procesos)):
-                if procesos[i].estado == "Espera":
-                    procesos[i].ejecutar()
-                    break
-
-        return procesos
+    return procesos
 
 
+def get_t_ejecucion(pr):
+    return pr.t_ejecucion
 
-class SPN(Planificador):
-    def __init__(self):
-        super().__init__()
+def SJF(procesos):
+    if(len([p for p in procesos if p.estado=="Ejecutando"])==0): # si no hay ningun proceso en ejecucion
+        pr = procesos.copy()
+        pr.sort(key=get_t_ejecucion)
+        for i in range(len(pr)):
+            if pr[i].estado == "Espera":
+                pr[i].ejecutar()
+                break
 
-class SRTF(Planificador):
-    def __init__(self):
-        super().__init__()
+    return procesos
 
-class RR(Planificador):
-    def __init__(self):
-        super().__init__()
 
-class Derecho_Preferente(Planificador):
-    def __init__(self):
-        super().__init__()
+def get_t_restante(pr):
+    return pr.t_restante
+
+def SRTF(procesos):
+    if(len([p for p in procesos if p.estado=="Ejecutando"])==0): # si no hay ningun proceso en ejecucion
+        pr = procesos.copy()
+        pr.sort(key=get_t_restante)
+        for i in range(len(pr)):
+            if pr[i].estado == "Espera":
+                pr[i].ejecutar()
+                break
+
+    return procesos
+
+def RR(procesos):
+    return procesos
+
+def Derecho_Preferente(procesos):
+    return procesos
