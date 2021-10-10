@@ -4,6 +4,7 @@ from tkinter import ttk
 from Display import Display
 from Proceso import Proceso
 from Planificador import *
+from Estadisticas import gen_ventana_est
 
 class Sistema:
     def __init__(self):
@@ -57,7 +58,7 @@ class Sistema:
                 self.lista_lbl[i]['background'] = 'black'
         
         self.quantum += 1
-        self.ventana_principal.after(1000, self.ciclo)
+        self.ventana_principal.after(250, self.ciclo)
     
     def iniciar_sim(self):
         self.correr_sim = True
@@ -65,6 +66,7 @@ class Sistema:
     
     def detener_sim(self):
         self.correr_sim = False
+        gen_ventana_est(self.estadisticas())
     
     def reiniciar_sim(self):
         self.correr_sim = False
@@ -74,6 +76,29 @@ class Sistema:
         for item in self.panel_procesos.winfo_children():
             item.destroy()
         self.init_ventana_principal()
+
+    def estadisticas(self):
+        tabla = []
+        for i in range(len(self.procesos)):
+            est = [
+                i,
+                self.procesos[i].t_llegada,
+                self.procesos[i].t_ejecucion,
+                self.procesos[i].t_espera,
+                self.procesos[i].t_bloqueado
+            ]
+            if self.procesos[i].estado=='Terminado':
+                est.extend([
+                    self.procesos[i].t_fin,
+                    self.procesos[i].t_fin-self.procesos[i].t_llegada,
+                    (self.procesos[i].t_fin-self.procesos[i].t_llegada)-self.procesos[i].t_ejecucion,
+                    round((self.procesos[i].t_fin-self.procesos[i].t_llegada)/self.procesos[i].t_ejecucion, 2)
+                ])
+            else:
+                est.extend(['-','-','-','-'])
+            est.append(self.procesos[i].t_respuesta)
+            tabla.append(est)
+        return tabla
 
     def agregar_proceso(self):
         if(self.dr_nv_proc.get().isdigit()):
@@ -124,6 +149,7 @@ class Sistema:
         self.agregar_proceso_lista()
 
     def init_ventana_principal(self):
+        self.ventana_principal.title('Simulacion Gestion de Procesos')
 
         self.dr_nv_proc = tk.StringVar()
         self.in_nv_bloq = tk.StringVar()

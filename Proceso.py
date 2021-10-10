@@ -1,10 +1,15 @@
 class Proceso():
     def __init__(self, t_llegada, t_ejecucion, bloqueos):
         
-        self.t_llegada = t_llegada
         self.bloqueos = bloqueos
         self.estado = "Espera"
+        
+        self.t_llegada = t_llegada
         self.t_ejecucion = t_ejecucion
+        self.t_espera = 0
+        self.t_bloqueado = 0
+        self.t_fin = 0
+        self.t_respuesta = 0
         self.t_restante = t_ejecucion
         self.t_bloqueo = 0
 
@@ -21,6 +26,9 @@ class Proceso():
             self.t_restante -= 1
         if self.estado=="Bloqueado" and self.t_bloqueo>0:
             self.t_bloqueo -= 1
+            self.t_bloqueado += 1
+        if self.estado=="Espera":
+            self.t_espera += 1
     
     def bloquear(self, t_bloqueo=0):
         if self.estado=="Ejecutando":
@@ -40,6 +48,12 @@ class Proceso():
     def ejecutar(self):
         if self.estado!="Terminado":
             self.estado = "Ejecutando"
+            if self.t_ejecucion==self.t_restante:
+                self.t_respuesta = self.t_espera
 
-    def terminar(self):
-            self.estado = "Terminado"
+    def terminar(self, q=-1):
+        if q>=0:
+            self.t_fin = q
+        else:
+            self.t_fin = self.t_llegada+self.t_ejecucion+self.t_espera+self.t_bloqueado
+        self.estado = "Terminado"
