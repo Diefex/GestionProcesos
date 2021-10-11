@@ -1,3 +1,6 @@
+from Proceso import ProcesoRR
+
+
 def get_llegada(pr):
     return pr.t_llegada
 
@@ -43,6 +46,26 @@ def SRTF(procesos):
     return procesos
 
 def RR(procesos):
+    RR = procesos[0]
+
+    for p in procesos:
+        if p not in RR.cola and p.estado=="Espera":
+            RR.cola.append(p)
+
+    ej = [p for p in procesos if p.estado=="Ejecutando"]
+    if RR.t_ejecucion<1 and len(ej)>0:
+        for p in ej:
+            p.esperar()
+
+    if RR.estado == "Desp" and len(RR.cola)>0:
+        pr = RR.cola.pop(0)
+        pr.ejecutar()
+        RR.terminar()
+    
+    ej = [p for p in procesos if p.estado=="Ejecutando"]
+    if len(ej)<1:
+        RR.ejecutar()
+
     return procesos
 
 def Derecho_Preferente(procesos):

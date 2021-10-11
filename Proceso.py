@@ -57,3 +57,32 @@ class Proceso():
         else:
             self.t_fin = self.t_llegada+self.t_ejecucion+self.t_espera+self.t_bloqueado
         self.estado = "Terminado"
+
+class ProcesoRR(Proceso):
+    def __init__(self):
+        super().__init__(0, 0, [[0,0]])
+        self.cola = []
+        self.estado = "Terminado"
+    
+    def cambiar_estado(self):
+        return
+
+    def atender(self):
+        if self.t_ejecucion<1:
+            self.ejecutar()
+        if self.estado=="Terminado":
+            self.t_ejecucion-=1
+        return
+    
+    def bloquear(self):
+        return
+    
+    def esperar(self):
+        return
+
+    def ejecutar(self):
+        self.estado = "Desp"
+    
+    def terminar(self):
+        self.t_ejecucion = 3
+        self.estado = "Terminado"

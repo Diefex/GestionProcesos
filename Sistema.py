@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from Display import Display
-from Proceso import Proceso
+from Proceso import Proceso, ProcesoRR
 from Planificador import *
 from Estadisticas import gen_ventana_est
 
@@ -17,6 +17,24 @@ class Sistema:
         self.ventana_principal = tk.Tk()
         self.init_ventana_principal()
         self.ventana_principal.mainloop()
+
+    def listenerRR(self):
+        if self.sel_plan.get()=='RR' and len([RR for RR in self.lista_procesos if isinstance(RR, ProcesoRR)])<1:
+            self.lista_procesos.insert(0, ProcesoRR())
+            for item in self.panel_procesos.winfo_children():
+                item.destroy()
+            self.lista_lbl = []
+            self.agregar_proceso_lista(RR=True)
+            for i in range(1,len(self.lista_procesos)):
+                self.agregar_proceso_lista(i=i)
+        elif self.sel_plan.get()!='RR' and len([RR for RR in self.lista_procesos if isinstance(RR, ProcesoRR)])>0:
+            self.lista_procesos.pop(0)
+            for item in self.panel_procesos.winfo_children():
+                item.destroy()
+            self.lista_lbl = []
+            for i in range(len(self.lista_procesos)):
+                self.agregar_proceso_lista(i=i)
+        self.ventana_principal.after(10, self.listenerRR)
     
     def ciclo(self):
         if not self.correr_sim:
@@ -26,6 +44,8 @@ class Sistema:
         for pr in self.lista_procesos:
             if(pr.t_llegada==self.quantum):
                 self.procesos.append(pr)
+                if len(self.procesos)>1 and isinstance(self.procesos[0], ProcesoRR):
+                    self.procesos[0].cola.append(pr)
 
         # cambiar estados
         for i in range(len(self.procesos)):
@@ -46,7 +66,7 @@ class Sistema:
         for i in range(len(self.procesos)):
             self.procesos[i].atender()
         # pintar procesos
-        self.display.pintar_procesos(self.procesos)
+        self.display.pintar_procesos(self.procesos, RR=isinstance(self.procesos[0], ProcesoRR))
         for i in range(len(self.procesos)):
             if self.procesos[i].estado == "Ejecutando":
                 self.lista_lbl[i]['background'] = 'green'
@@ -54,6 +74,8 @@ class Sistema:
                 self.lista_lbl[i]['background'] = 'red'
             elif self.procesos[i].estado == "Espera":
                 self.lista_lbl[i]['background'] = 'grey'
+            elif self.procesos[i].estado == 'Desp':
+                self.lista_lbl[i]['background'] = 'cyan'
             else:
                 self.lista_lbl[i]['background'] = 'black'
         
@@ -62,11 +84,12 @@ class Sistema:
     
     def iniciar_sim(self):
         self.correr_sim = True
+        self.sel_plan.configure(state='disabled')
         self.ciclo()
     
     def detener_sim(self):
         self.correr_sim = False
-        gen_ventana_est(self.estadisticas())
+        gen_ventana_est(self.estadisticas(RR=isinstance(self.procesos[0], ProcesoRR)))
     
     def reiniciar_sim(self):
         self.correr_sim = False
@@ -77,9 +100,9 @@ class Sistema:
             item.destroy()
         self.init_ventana_principal()
 
-    def estadisticas(self):
+    def estadisticas(self, RR=False):
         tabla = []
-        for i in range(len(self.procesos)):
+        for i in range((1 if RR else 0),len(self.procesos)):
             est = [
                 i,
                 self.procesos[i].t_llegada,
@@ -111,15 +134,15 @@ class Sistema:
             self.nv_bloq = []
             self.lb_nv_bloq.set('')
 
-    def agregar_proceso_lista(self):
-        i = len(self.lista_procesos)-1
-        pnl = ttk.LabelFrame(self.panel_procesos, text="Proceso "+str(i))
-        lb = ttk.Label(pnl, text='P'+str(i), background="black", foreground='white')
+    def agregar_proceso_lista(self, i=-1, RR=False):
+        i = len(self.lista_procesos)-1 if i==-1 else i
+        pnl = ttk.LabelFrame(self.panel_procesos, text=("Proceso "+str(i) if not RR else "RR"))
+        lb = ttk.Label(pnl, text=('P'+str(i) if not RR else "RR"), background="black", foreground='white')
         lb.grid(row=0, column=0)
-        self.lista_lbl.append(lb)
+        self.lista_lbl.insert(i, lb)
         ttk.Button(pnl, text='||', width=3, command= lambda: self.bloquear_proceso(i, 3)).grid(row=0,column=1)
         ttk.Button(pnl, text='■', width=3, command= lambda: self.terminar_proceso(i)).grid(row=0,column=2)
-        pnl.grid(row=i%2, column=int(i/2))
+        pnl.grid(row=i%2 if not RR else 0, column=int(i/2) if not RR else 0)
 
     def agr_nv_bloq(self):
         if (self.in_nv_bloq.get().isdigit() and self.dr_nv_bloq.get().isdigit()):
@@ -190,6 +213,9 @@ class Sistema:
         self.panel_simulacion = ttk.LabelFrame(self.ventana_principal, text="Simulacion")
         self.display = Display(self.panel_simulacion)
         self.panel_simulacion.grid(row=1, column=0, columnspan=3)
+
+        #Listener
+        self.listenerRR()
 
 
 sistema = Sistema()
