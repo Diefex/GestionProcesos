@@ -6,7 +6,7 @@ class Display:
         self.y_crr = y_crr
         self.x_crr = x_crr
 
-        self.width = width
+        self.width = self.x_crr+(self.tam_cr*width)
         if self.width == 0:
             self.width = self.x_crr+(self.tam_cr*55)
         self.height = height

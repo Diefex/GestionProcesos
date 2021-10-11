@@ -12,6 +12,7 @@ class Sistema:
         self.lista_procesos = []
 
         self.quantum = 0
+        self.lim_sim = 55
         self.correr_sim = False
 
         self.ventana_principal = tk.Tk()
@@ -66,7 +67,7 @@ class Sistema:
         for i in range(len(self.procesos)):
             self.procesos[i].atender()
         # pintar procesos
-        self.display.pintar_procesos(self.procesos, RR=isinstance(self.procesos[0], ProcesoRR))
+        self.display.pintar_procesos(self.procesos, RR=(len(self.procesos)>0 and isinstance(self.procesos[0], ProcesoRR)))
         for i in range(len(self.procesos)):
             if self.procesos[i].estado == "Ejecutando":
                 self.lista_lbl[i]['background'] = 'green'
@@ -80,7 +81,10 @@ class Sistema:
                 self.lista_lbl[i]['background'] = 'black'
         
         self.quantum += 1
-        self.ventana_principal.after(250, self.ciclo)
+        if self.quantum>self.lim_sim:
+            self.detener_sim()
+        
+        self.ventana_principal.after(200, self.ciclo)
     
     def iniciar_sim(self):
         self.correr_sim = True
@@ -211,7 +215,7 @@ class Sistema:
 
         # panel del display
         self.panel_simulacion = ttk.LabelFrame(self.ventana_principal, text="Simulacion")
-        self.display = Display(self.panel_simulacion)
+        self.display = Display(self.panel_simulacion, width=self.lim_sim)
         self.panel_simulacion.grid(row=1, column=0, columnspan=3)
 
         #Listener
