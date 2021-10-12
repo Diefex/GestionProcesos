@@ -40,6 +40,6 @@ class Display:
             x = self.pos
             y = self.y_crr-(i*self.tam_cr)
             self.canvas.create_rectangle(x,y,x+self.tam_cr,y-self.tam_cr, fill=color)
-            if DP and color=="green":
+            if DP and color!="black":
                 self.canvas.create_text(x+(self.tam_cr/2),y-(self.tam_cr/2), text=procesos[i].prioridad, fill="white")
         self.pos += self.tam_cr

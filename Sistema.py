@@ -61,11 +61,11 @@ class Sistema:
             self.procesos = SRTF(self.procesos)
         elif plan=="RR":
             self.procesos = RR(self.procesos)
-        elif plan=="DPCM Sin Retro.":
+        elif "DPCM" in plan:
             self.procesos = Derecho_Preferente(self.procesos)
         # atender procesos
         for i in range(len(self.procesos)):
-            self.procesos[i].atender()
+            self.procesos[i].atender(Retro=True if 'Con' in plan else False)
         # pintar procesos
         self.display.pintar_procesos(self.procesos, 
         RR=(len(self.procesos)>0 and isinstance(self.procesos[0], ProcesoRR)),

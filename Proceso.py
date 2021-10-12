@@ -23,7 +23,7 @@ class Proceso():
         if self.t_restante<1:
             self.terminar()
 
-    def atender(self):
+    def atender(self, Retro=False):
         if self.estado=="Ejecutando" and self.t_restante>0:
             self.t_restante -= 1
         if self.estado=="Bloqueado" and self.t_bloqueo>0:
@@ -31,6 +31,9 @@ class Proceso():
             self.t_bloqueado += 1
         if self.estado=="Espera":
             self.t_espera += 1
+            if Retro: 
+                self.prioridad = int((self.t_espera+self.t_ejecucion)/self.t_ejecucion)
+                if self.prioridad>3: self.prioridad = 3
     
     def bloquear(self, t_bloqueo=0):
         if self.estado=="Ejecutando":

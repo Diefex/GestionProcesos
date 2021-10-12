@@ -83,12 +83,13 @@ def Derecho_Preferente(procesos):
         cola = [p for p in procesos if p.prioridad==cola_actual]
         j += 1
 
-    if cola_actual==1:
-        FCFS(cola)
-    elif cola_actual==2:
-        SJF(cola)
-    elif cola_actual==3:
-        SRTF(cola)
+    if len([p for p in cola if p.estado=="Ejecutando"])<1:
+        if cola_actual==1:
+            FCFS(cola)
+        elif cola_actual==2:
+            SJF(cola)
+        elif cola_actual==3:
+            SRTF(cola)
     
     t_cola -= 1
 
