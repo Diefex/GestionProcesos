@@ -1,5 +1,5 @@
 class Proceso():
-    def __init__(self, t_llegada, t_ejecucion, bloqueos):
+    def __init__(self, t_llegada, t_ejecucion, bloqueos=[], prioridad=0):
         
         self.bloqueos = bloqueos
         self.estado = "Espera"
@@ -12,6 +12,8 @@ class Proceso():
         self.t_respuesta = 0
         self.t_restante = t_ejecucion
         self.t_bloqueo = 0
+
+        self.prioridad = prioridad
 
     def cambiar_estado(self):
         if self.estado=="Ejecutando" and len(self.bloqueos)>0 and self.bloqueos[-1][0] == self.t_ejecucion-self.t_restante:

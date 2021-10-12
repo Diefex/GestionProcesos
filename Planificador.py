@@ -68,5 +68,28 @@ def RR(procesos):
 
     return procesos
 
+cola_actual = 1
+t_cola = cola_actual
 def Derecho_Preferente(procesos):
+    global cola_actual, t_cola
+    cola = [p for p in procesos if p.prioridad==cola_actual]
+    j = 0
+    while (t_cola<1 or ((len([p for p in cola if p.estado=="Espera"])<1) and (len([p for p in cola if p.estado=="Ejecutando"])<1)))and j<3:
+        for pr in cola:
+            if pr.estado=="Ejecutando": pr.esperar()
+        cola_actual += 1
+        if cola_actual>3: cola_actual = 1
+        t_cola = cola_actual
+        cola = [p for p in procesos if p.prioridad==cola_actual]
+        j += 1
+
+    if cola_actual==1:
+        FCFS(cola)
+    elif cola_actual==2:
+        SJF(cola)
+    elif cola_actual==3:
+        SRTF(cola)
+    
+    t_cola -= 1
+
     return procesos

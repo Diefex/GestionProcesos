@@ -61,13 +61,15 @@ class Sistema:
             self.procesos = SRTF(self.procesos)
         elif plan=="RR":
             self.procesos = RR(self.procesos)
-        elif plan=="DP":
+        elif plan=="DPCM Sin Retro.":
             self.procesos = Derecho_Preferente(self.procesos)
         # atender procesos
         for i in range(len(self.procesos)):
             self.procesos[i].atender()
         # pintar procesos
-        self.display.pintar_procesos(self.procesos, RR=(len(self.procesos)>0 and isinstance(self.procesos[0], ProcesoRR)))
+        self.display.pintar_procesos(self.procesos, 
+        RR=(len(self.procesos)>0 and isinstance(self.procesos[0], ProcesoRR)),
+        DP=True if 'DP' in self.sel_plan.get() else False)
         for i in range(len(self.procesos)):
             if self.procesos[i].estado == "Ejecutando":
                 self.lista_lbl[i]['background'] = 'green'
@@ -93,7 +95,7 @@ class Sistema:
     
     def detener_sim(self):
         self.correr_sim = False
-        gen_ventana_est(self.estadisticas(RR=isinstance(self.procesos[0], ProcesoRR)))
+        gen_ventana_est(self.estadisticas(RR=len(self.procesos)>1 and isinstance(self.procesos[0], ProcesoRR)))
     
     def reiniciar_sim(self):
         self.correr_sim = False
@@ -131,7 +133,7 @@ class Sistema:
         if(self.dr_nv_proc.get().isdigit()):
             self.nv_bloq.sort()
             self.nv_bloq.reverse()
-            self.lista_procesos.append(Proceso(self.quantum, int(self.dr_nv_proc.get()), self.nv_bloq))
+            self.lista_procesos.append(Proceso(self.quantum, int(self.dr_nv_proc.get()), self.nv_bloq, prioridad=int(self.sel_prio.get())))
 
             self.agregar_proceso_lista()
 
@@ -162,17 +164,17 @@ class Sistema:
             self.procesos[i].terminar()
 
     def lista_predeterminada(self):
-        self.lista_procesos.append(Proceso(0, 6, [[3,2]]))
+        self.lista_procesos.append(Proceso(0, 6, [[3,2]], prioridad=1))
         self.agregar_proceso_lista()
-        self.lista_procesos.append(Proceso(1, 8, [[1,3]]))
+        self.lista_procesos.append(Proceso(1, 8, [[1,3]], prioridad=2))
         self.agregar_proceso_lista()
-        self.lista_procesos.append(Proceso(2, 7, [[5,1]]))
+        self.lista_procesos.append(Proceso(2, 7, [[5,1]], prioridad=3))
         self.agregar_proceso_lista()
-        self.lista_procesos.append(Proceso(4, 3, [[0,0]]))
+        self.lista_procesos.append(Proceso(4, 3, [[0,0]], prioridad=1))
         self.agregar_proceso_lista()
-        self.lista_procesos.append(Proceso(6, 9, [[2,4]]))
+        self.lista_procesos.append(Proceso(6, 9, [[2,4]], prioridad=2))
         self.agregar_proceso_lista()
-        self.lista_procesos.append(Proceso(6, 2, [[0,0]]))
+        self.lista_procesos.append(Proceso(6, 2, [[0,0]], prioridad=3))
         self.agregar_proceso_lista()
 
     def init_ventana_principal(self):
@@ -181,6 +183,7 @@ class Sistema:
         self.dr_nv_proc = tk.StringVar()
         self.in_nv_bloq = tk.StringVar()
         self.dr_nv_bloq = tk.StringVar()
+        self.pr_nv_proc = tk.StringVar()
         self.nv_bloq = []
         self.lb_nv_bloq = tk.StringVar()
         # panel de agregar procesos
@@ -191,11 +194,15 @@ class Sistema:
         ttk.Label(self.panel_agregar, text="Bloqueos: ").grid(row=1, column=0)
         ttk.Entry(self.panel_agregar, textvariable=self.in_nv_bloq, width=3).grid(row=1, column=1)
         ttk.Entry(self.panel_agregar, textvariable=self.dr_nv_bloq, width=3).grid(row=1, column=2)
-        ttk.Label(self.panel_agregar, textvariable=self.lb_nv_bloq).grid(row=1, column=3)
-        ttk.Button(self.panel_agregar, text="Agregar Bloqueo", command=self.agr_nv_bloq).grid(row=2, column=0)
+        ttk.Label(self.panel_agregar, textvariable=self.lb_nv_bloq).grid(row=2, column=0)
+        ttk.Button(self.panel_agregar, text="+", command=self.agr_nv_bloq, width=2).grid(row=1, column=3)
         ttk.Label(self.panel_agregar, text="ini").grid(row=2, column=1, sticky='n')
         ttk.Label(self.panel_agregar, text="dur").grid(row=2, column=2, sticky='n')
-        ttk.Button(self.panel_agregar, text="Agregar Proceso", command=self.agregar_proceso).grid(row=3, column=0, columnspan=3, sticky='we')
+        ttk.Label(self.panel_agregar, text="Prioridad: ").grid(row=3, column=0)
+        self.sel_prio = ttk.Combobox(self.panel_agregar, state="readonly", values=["0", "1", "2"], width=2)
+        self.sel_prio.grid(row=3, column=1, columnspan=2 ,sticky='we')
+        self.sel_prio.set(self.sel_prio['values'][0])
+        ttk.Button(self.panel_agregar, text="Agregar Proceso", command=self.agregar_proceso).grid(row=4, column=0, columnspan=4, sticky='we')
 
         # panel de control de simulacion
         self.panel_ctrl_sim = ttk.LabelFrame(self.ventana_principal, text="Control")
@@ -204,7 +211,7 @@ class Sistema:
         ttk.Button(self.panel_ctrl_sim, text="Detener", command=self.detener_sim).grid(row=1, column=0, sticky='we')
         ttk.Button(self.panel_ctrl_sim, text="Predet.", command=self.lista_predeterminada).grid(row=2, column=0, sticky='we')
         ttk.Button(self.panel_ctrl_sim, text="Reiniciar", command=self.reiniciar_sim).grid(row=3, column=0, sticky='we')
-        self.sel_plan = ttk.Combobox(self.panel_ctrl_sim, state="readonly", values=["FCFS", "SJF", "SRTF", "RR", "DP"])
+        self.sel_plan = ttk.Combobox(self.panel_ctrl_sim, state="readonly", values=["FCFS", "SJF", "SRTF", "RR", "DPCM Sin Retro.", "DPCM Con Retro."])
         self.sel_plan.grid(row=4, column=0, sticky='we')
         self.sel_plan.set(self.sel_plan['values'][0])
 

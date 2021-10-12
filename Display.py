@@ -17,7 +17,7 @@ class Display:
 
         self.canvas.create_line(self.x_crr, self.y_crr+1, self.width-self.tam_cr, self.y_crr+1, fill='white')   
 
-    def pintar_procesos(self, procesos, RR=False):
+    def pintar_procesos(self, procesos, RR=False, DP=False):
         self.canvas.create_rectangle(0,0, self.x_crr, self.height, fill='black')
         self.canvas.create_text(self.pos+7, self.y_crr+10, text=str(int(self.pos/self.tam_cr)), fill="white")
         for i in range(len(procesos)):
@@ -40,4 +40,6 @@ class Display:
             x = self.pos
             y = self.y_crr-(i*self.tam_cr)
             self.canvas.create_rectangle(x,y,x+self.tam_cr,y-self.tam_cr, fill=color)
+            if DP and color=="green":
+                self.canvas.create_text(x+(self.tam_cr/2),y-(self.tam_cr/2), text=procesos[i].prioridad, fill="white")
         self.pos += self.tam_cr
