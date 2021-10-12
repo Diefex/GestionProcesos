@@ -53,7 +53,7 @@ def RR(procesos):
             RR.cola.append(p)
 
     ej = [p for p in procesos if p.estado=="Ejecutando"]
-    if RR.t_ejecucion<1 and len(ej)>0:
+    if RR.t_restante<1 and len(ej)>0:
         for p in ej:
             p.esperar()
 

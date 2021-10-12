@@ -72,11 +72,11 @@ class ProcesoRR(Proceso):
     def cambiar_estado(self):
         return
 
-    def atender(self):
-        if self.t_ejecucion<1:
+    def atender(self, Retro=False):
+        if self.t_restante<1:
             self.ejecutar()
         if self.estado=="Terminado":
-            self.t_ejecucion-=1
+            self.t_restante-=1
         return
     
     def bloquear(self):
@@ -89,5 +89,6 @@ class ProcesoRR(Proceso):
         self.estado = "Desp"
     
     def terminar(self):
-        self.t_ejecucion = 3
+        self.t_restante = 3
+        self.t_ejecucion += 1
         self.estado = "Terminado"

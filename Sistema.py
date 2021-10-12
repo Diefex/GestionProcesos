@@ -95,7 +95,6 @@ class Sistema:
     
     def detener_sim(self):
         self.correr_sim = False
-        gen_ventana_est(self.estadisticas(RR=len(self.procesos)>1 and isinstance(self.procesos[0], ProcesoRR)))
     
     def reiniciar_sim(self):
         self.correr_sim = False
@@ -106,13 +105,13 @@ class Sistema:
             item.destroy()
         self.init_ventana_principal()
 
-    def estadisticas(self, RR=False):
+    def estadisticas_pr(self, RR=False):
         tabla = []
         for i in range((1 if RR else 0),len(self.procesos)):
             est = [
                 i,
                 self.procesos[i].t_llegada,
-                self.procesos[i].t_ejecucion,
+                self.procesos[i].t_ejecucion-self.procesos[i].t_restante,
                 self.procesos[i].t_espera,
                 self.procesos[i].t_bloqueado
             ]
@@ -120,7 +119,7 @@ class Sistema:
                 est.extend([
                     self.procesos[i].t_fin,
                     self.procesos[i].t_fin-self.procesos[i].t_llegada,
-                    (self.procesos[i].t_fin-self.procesos[i].t_llegada)-self.procesos[i].t_ejecucion,
+                    (self.procesos[i].t_fin-self.procesos[i].t_llegada)-(self.procesos[i].t_ejecucion-self.procesos[i].t_restante),
                     round((self.procesos[i].t_fin-self.procesos[i].t_llegada)/self.procesos[i].t_ejecucion, 2)
                 ])
             else:
@@ -128,6 +127,46 @@ class Sistema:
             est.append(self.procesos[i].t_respuesta)
             tabla.append(est)
         return tabla
+
+    def estadisticas_gen(self, RR=False):
+        procesos = self.procesos[1:] if RR else self.procesos
+
+        uso = 0
+        prom_retorno = 0
+        prom_espera = 0
+        prom_perdido = 0
+        for pr in procesos:
+            uso += pr.t_ejecucion-pr.t_restante
+            prom_retorno += pr.t_fin-pr.t_llegada
+            prom_espera += pr.t_espera
+            prom_perdido += (pr.t_fin-pr.t_llegada)-(pr.t_ejecucion-pr.t_restante)
+        
+        prom_retorno = round(prom_retorno/len(procesos),2)
+        prom_ejecucion =  round(uso/len(procesos),2)
+        prom_espera =  round(prom_espera/len(procesos),2)
+        prom_perdido =  round(prom_perdido/len(procesos),2)
+
+        estadisticas = [
+            ['Tiempo de Simulación',self.quantum],
+            ['Tiempo de uso de CPU',uso],
+            ['Tiempo CPU Desocupada',self.quantum-uso],
+            ['Promedio de Retorno',prom_retorno],
+            ['Promedio de Ejecución',prom_ejecucion],
+            ['Promedio de Espera',prom_espera],
+            ['Promeido de Tiempo Perdido',prom_perdido]
+        ]
+        if RR:
+            estadisticas[2][1] -= self.procesos[0].t_ejecucion
+            estadisticas[1][0] = 'Tiempo de Procesos'
+            estadisticas.insert(2,['Tiempo de Despachador', self.procesos[0].t_ejecucion])
+            estadisticas.insert(3,['%CPU Procesos', round((uso/self.quantum)*100,2)])
+            estadisticas.insert(4,['%CPU Despachador', round((self.procesos[0].t_ejecucion/self.quantum)*100,2)])
+        return estadisticas
+
+    def mostrar_estadisticas(self):
+        gen_ventana_est(
+            self.estadisticas_pr(RR=len(self.procesos)>1 and isinstance(self.procesos[0], ProcesoRR)),
+            self.estadisticas_gen(RR=len(self.procesos)>1 and isinstance(self.procesos[0], ProcesoRR)))
 
     def agregar_proceso(self):
         if(self.dr_nv_proc.get().isdigit()):
@@ -209,10 +248,11 @@ class Sistema:
         self.panel_ctrl_sim.grid(row=0, column=1, sticky="w")
         ttk.Button(self.panel_ctrl_sim, text="Iniciar", command=self.iniciar_sim).grid(row=0, column=0, sticky='we')
         ttk.Button(self.panel_ctrl_sim, text="Detener", command=self.detener_sim).grid(row=1, column=0, sticky='we')
-        ttk.Button(self.panel_ctrl_sim, text="Predet.", command=self.lista_predeterminada).grid(row=2, column=0, sticky='we')
-        ttk.Button(self.panel_ctrl_sim, text="Reiniciar", command=self.reiniciar_sim).grid(row=3, column=0, sticky='we')
+        ttk.Button(self.panel_ctrl_sim, text="Estadisticas", command=self.mostrar_estadisticas).grid(row=2, column=0, sticky='we')
+        ttk.Button(self.panel_ctrl_sim, text="Predet.", command=self.lista_predeterminada).grid(row=3, column=0, sticky='we')
+        ttk.Button(self.panel_ctrl_sim, text="Reiniciar", command=self.reiniciar_sim).grid(row=4, column=0, sticky='we')
         self.sel_plan = ttk.Combobox(self.panel_ctrl_sim, state="readonly", values=["FCFS", "SJF", "SRTF", "RR", "DPCM Sin Retro.", "DPCM Con Retro."])
-        self.sel_plan.grid(row=4, column=0, sticky='we')
+        self.sel_plan.grid(row=5, column=0, sticky='we')
         self.sel_plan.set(self.sel_plan['values'][0])
 
         self.lista_lbl = []
