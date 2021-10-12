@@ -24,17 +24,21 @@ class Sistema:
             self.lista_procesos.insert(0, ProcesoRR())
             for item in self.panel_procesos.winfo_children():
                 item.destroy()
+            self.panel_procesos.grid_forget()
             self.lista_lbl = []
             self.agregar_proceso_lista(RR=True)
             for i in range(1,len(self.lista_procesos)):
                 self.agregar_proceso_lista(i=i)
+            self.panel_procesos.grid(row=0, column=2, sticky="e")
         elif self.sel_plan.get()!='RR' and len([RR for RR in self.lista_procesos if isinstance(RR, ProcesoRR)])>0:
             self.lista_procesos.pop(0)
             for item in self.panel_procesos.winfo_children():
                 item.destroy()
+            self.panel_procesos.grid_forget()
             self.lista_lbl = []
             for i in range(len(self.lista_procesos)):
                 self.agregar_proceso_lista(i=i)
+            self.panel_procesos.grid(row=0, column=2, sticky="e")
         self.ventana_principal.after(10, self.listenerRR)
     
     def ciclo(self):
@@ -82,11 +86,16 @@ class Sistema:
             else:
                 self.lista_lbl[i]['background'] = 'black'
         
-        self.quantum += 1
-        if self.quantum>self.lim_sim:
+        if (self.quantum>self.lim_sim 
+        or (len(self.procesos)>0 and not isinstance(self.procesos[0], ProcesoRR)) and (len([p for p in self.procesos if p.estado=='Terminado'])==len(self.procesos))
+        or (len(self.procesos)>0 and isinstance(self.procesos[0], ProcesoRR)) and (len([p for p in self.procesos[1:] if p.estado=='Terminado'])==len(self.procesos[1:]))):
+            if (len(self.procesos)>0 and isinstance(self.procesos[0], ProcesoRR)):
+                self.procesos[0].t_ejecucion += 1
+            else:
+                self.quantum -= 1
             self.detener_sim()
-        
-        self.ventana_principal.after(200, self.ciclo)
+        self.quantum += 1
+        self.ventana_principal.after(1000, self.ciclo)
     
     def iniciar_sim(self):
         self.correr_sim = True
@@ -101,8 +110,7 @@ class Sistema:
         self.procesos = []
         self.lista_procesos = []
         self.quantum = 0
-        for item in self.panel_procesos.winfo_children():
-            item.destroy()
+        self.panel_procesos.destroy()
         self.init_ventana_principal()
 
     def estadisticas_pr(self, RR=False):
@@ -238,7 +246,7 @@ class Sistema:
         ttk.Label(self.panel_agregar, text="ini").grid(row=2, column=1, sticky='n')
         ttk.Label(self.panel_agregar, text="dur").grid(row=2, column=2, sticky='n')
         ttk.Label(self.panel_agregar, text="Prioridad: ").grid(row=3, column=0)
-        self.sel_prio = ttk.Combobox(self.panel_agregar, state="readonly", values=["0", "1", "2"], width=2)
+        self.sel_prio = ttk.Combobox(self.panel_agregar, state="readonly", values=["1", "2", "3"], width=2)
         self.sel_prio.grid(row=3, column=1, columnspan=2 ,sticky='we')
         self.sel_prio.set(self.sel_prio['values'][0])
         ttk.Button(self.panel_agregar, text="Agregar Proceso", command=self.agregar_proceso).grid(row=4, column=0, columnspan=4, sticky='we')
@@ -248,11 +256,11 @@ class Sistema:
         self.panel_ctrl_sim.grid(row=0, column=1, sticky="w")
         ttk.Button(self.panel_ctrl_sim, text="Iniciar", command=self.iniciar_sim).grid(row=0, column=0, sticky='we')
         ttk.Button(self.panel_ctrl_sim, text="Detener", command=self.detener_sim).grid(row=1, column=0, sticky='we')
-        ttk.Button(self.panel_ctrl_sim, text="Estadisticas", command=self.mostrar_estadisticas).grid(row=2, column=0, sticky='we')
-        ttk.Button(self.panel_ctrl_sim, text="Predet.", command=self.lista_predeterminada).grid(row=3, column=0, sticky='we')
-        ttk.Button(self.panel_ctrl_sim, text="Reiniciar", command=self.reiniciar_sim).grid(row=4, column=0, sticky='we')
-        self.sel_plan = ttk.Combobox(self.panel_ctrl_sim, state="readonly", values=["FCFS", "SJF", "SRTF", "RR", "DPCM Sin Retro.", "DPCM Con Retro."])
-        self.sel_plan.grid(row=5, column=0, sticky='we')
+        ttk.Button(self.panel_ctrl_sim, text="Reiniciar", command=self.reiniciar_sim).grid(row=2, column=0, sticky='we')
+        ttk.Button(self.panel_ctrl_sim, text="Predet.", command=self.lista_predeterminada).grid(row=0, column=1, sticky='we')
+        ttk.Button(self.panel_ctrl_sim, text="Estadisticas", command=self.mostrar_estadisticas).grid(row=1, column=1, sticky='we')
+        self.sel_plan = ttk.Combobox(self.panel_ctrl_sim, state="readonly", values=["FCFS", "SJF", "SRTF", "RR", "DPCM Sin Retro.", "DPCM Con Retro."], width=13)
+        self.sel_plan.grid(row=2, column=1, sticky='we')
         self.sel_plan.set(self.sel_plan['values'][0])
 
         self.lista_lbl = []

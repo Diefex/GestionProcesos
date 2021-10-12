@@ -19,7 +19,7 @@ class Display:
 
     def pintar_procesos(self, procesos, RR=False, DP=False):
         self.canvas.create_rectangle(0,0, self.x_crr, self.height, fill='black')
-        self.canvas.create_text(self.pos+7, self.y_crr+10, text=str(int(self.pos/self.tam_cr)), fill="white")
+        self.canvas.create_text(self.pos+7, self.y_crr+10, text=str(int(self.pos/self.tam_cr)-1), fill="white")
         for i in range(len(procesos)):
             self.canvas.create_text(self.x_crr-15, self.y_crr-8-(i*self.tam_cr), text="RR" if RR and i==0 else "P"+str(i), fill="white")
             self.canvas.create_line(self.x_crr-5, self.y_crr-(i*self.tam_cr), self.x_crr-5, self.y_crr-self.tam_cr-(i*self.tam_cr), fill="white")
